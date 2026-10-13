@@ -1,0 +1,25 @@
+# Hushfield
+
+A phone web app that listens to the room and cancels or masks the most annoying sound.
+
+**Open on your phone:** https://raw.githack.com/tempohadesvine-hash/animated-adventure/main/index.html
+
+## What it does
+
+- **Auto** (default): scores every sound by loudness to the ear, tonality and persistence, then picks the right mode for the worst one.
+- **Hum Lock**: plays an inverted copy of a steady tone under 1 kHz (fridge, fan, engine, electrical hum) and auto-tunes phase and level.
+- **Live Invert**: flips the live mic signal below ~250 Hz for deep rumble.
+- **Mask**: brown, pink or white noise that rises with the room level, for voices, clatter and high whines.
+
+Includes a live 20 Hz – 8 kHz spectrum, a reduction readout in dB, a screen wake lock and an idea queue.
+
+## Use
+
+1. Open the link in Chrome (needs https for the microphone).
+2. Tap **Start listening** and allow the microphone.
+3. Wear wired earbuds — cancellation only works at your ear, not through the phone speaker.
+4. Menu → **Add to Home screen** to launch it like an app.
+
+## Limits
+
+Browser audio adds 20–50 ms of latency, so true cancellation only works on steady, low-pitched sound. Voices and sudden noises get masked instead. A native Android build (Oboe) is the next step for lower latency.
