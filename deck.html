@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Recap Deck Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Nunito:wght@400;600;700&family=M+PLUS+1+Code:wght@500&display=swap">
+<style>
+:root{
+  --bg:#eeeaff; --bg2:#ffe3f1; --card:#ffffff; --ink:#2a2140; --muted:#6f6590;
+  --pink:#ff4f9a; --blue:#4f7dff; --gold:#ffb627; --green:#2bb673; --line:#ddd5f5;
+  --display:"Zen Maru Gothic","Hiragino Maru Gothic ProN",system-ui,sans-serif;
+  --body:"Nunito",system-ui,sans-serif; --mono:"M PLUS 1 Code",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#17132b; --bg2:#2a1630; --card:#231d3d; --ink:#f1ecff; --muted:#a99fcc;
+  --pink:#ff6fae; --blue:#7c9cff; --gold:#ffc65a; --green:#4fd39a; --line:#3a3160; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#17132b; --bg2:#2a1630; --card:#231d3d; --ink:#f1ecff; --muted:#a99fcc;
+  --pink:#ff6fae; --blue:#7c9cff; --gold:#ffc65a; --green:#4fd39a; --line:#3a3160; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:radial-gradient(120% 80% at 0% 0%,var(--bg2),transparent 60%),var(--bg);color:var(--ink);
+  font:15px/1.5 var(--body);padding-inline:16px;padding-block:18px 28px;min-height:100vh;margin:0}
+main{max-width:440px;margin:0 auto;display:grid;gap:14px}
+header{display:grid;gap:2px}
+h1{font:900 24px/1.15 var(--display);margin:0;text-wrap:balance}
+h1 em{font-style:normal;color:var(--pink)}
+.sub{font:12px var(--mono);color:var(--muted);letter-spacing:.04em}
+.panel{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:14px;display:grid;gap:10px}
+.panel label{font:700 12px var(--mono);letter-spacing:.06em;color:var(--muted)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row>*{flex:1;min-width:0}
+select,input[type=password],input[type=text],textarea{width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:9px;font:14px var(--body)}
+textarea{min-height:120px;resize:vertical;font:13px var(--mono)}
+button.build{background:var(--pink);color:#fff;border:0;border-radius:12px;padding:13px;font:900 15px var(--display);cursor:pointer}
+button.build:disabled{opacity:.5}
+.ghost{background:none;border:1px solid var(--line);color:var(--muted);border-radius:10px;padding:8px 10px;font:600 12px var(--body);cursor:pointer}
+.status{font:12px var(--mono);color:var(--muted);min-height:16px}
+.status.err{color:var(--pink)}
+.hintrow{font:11px var(--mono);color:var(--muted);line-height:1.6}
+.hintrow a{color:var(--blue)}
+.stage{perspective:1200px}
+.card{position:relative;aspect-ratio:5/7;max-width:100%;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.3,1.4,.5,1);cursor:pointer}
+.card.flipped{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;border-radius:22px;background:var(--card);
+  border:3px solid var(--edge);box-shadow:0 10px 30px color-mix(in srgb,var(--edge) 30%,transparent);overflow:hidden;display:flex;flex-direction:column}
+.back{transform:rotateY(180deg)}
+.top{display:flex;justify-content:space-between;align-items:center;padding:12px 14px 0;font:12px var(--mono);color:var(--muted)}
+.chip{font:700 11px var(--body);letter-spacing:.1em;text-transform:uppercase;color:#fff;background:var(--edge);padding:3px 9px;border-radius:99px}
+.art{flex:1;min-height:0;display:grid;place-items:center;position:relative}
+.art::before{content:"";position:absolute;inset:8% 10%;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--edge) 22%,transparent),transparent 70%)}
+.art svg{position:relative;height:100%;max-height:300px;width:auto;max-width:100%}
+.spark{position:absolute;color:var(--gold);font-size:18px}
+.title{padding:0 16px 16px;display:grid;gap:4px}
+.title h2{font:900 22px/1.15 var(--display);margin:0;text-wrap:balance}
+.title p{margin:0;color:var(--muted);font-size:13px}
+.tap{font:11px var(--mono);color:var(--muted);text-align:center;padding-bottom:10px}
+.back .body{padding:14px 18px;display:grid;gap:10px;overflow:auto;flex:1}
+.back h3{font:700 18px var(--display);margin:0}
+.back ul{margin:0;padding-left:18px;display:grid;gap:6px}
+.back li::marker{color:var(--edge)}
+.bubble{display:flex;gap:10px;align-items:flex-end;padding:0 14px 14px}
+.bubble svg{width:64px;height:64px;flex:none}
+.bubble p{margin:0;background:color-mix(in srgb,var(--edge) 14%,var(--card));border-radius:14px 14px 14px 4px;padding:8px 12px;font:600 13px var(--body)}
+.who{display:block;font:11px var(--mono);color:var(--muted);letter-spacing:.04em;margin-bottom:2px}
+code{font:12px var(--mono);overflow-wrap:anywhere}
+a{color:var(--blue);overflow-wrap:anywhere}
+nav{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}
+nav button{font:700 15px var(--display);background:var(--card);color:var(--ink);border:2px solid var(--line);border-radius:14px;padding:10px 16px;cursor:pointer}
+nav button:disabled{opacity:.4;cursor:default}
+.dots{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
+.dots i{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--pink);transform:scale(1.25)}
+button:focus-visible,.card:focus-visible,select:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+details.ideas{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:10px 12px}
+details.ideas summary{font:700 14px var(--display);cursor:pointer}
+#ideaList{list-style:none;padding:0;margin:8px 0;display:grid;gap:6px;font-size:13px}
+#ideaList li{display:flex;gap:8px}#ideaList li span{flex:1;min-width:0}
+#ideaList li.free span::after{content:" · $0";color:var(--pink);font:11px var(--mono)}
+#ideaList button,.ideaform button{background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;font:12px var(--body);cursor:pointer}
+.ideaform{display:flex;gap:6px;align-items:center}
+.ideaform input[type=text]{flex:1;min-width:0}
+.ideaform label{font:11px var(--mono);color:var(--muted)}
+@media (prefers-reduced-motion: reduce){.card{transition:none}}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <span class="sub" id="banner">RECAP DECK BUILDER · runs on a free model, not Claude</span>
+    <h1>Recap <em>Deck</em> Builder</h1>
+  </header>
+
+  <details class="panel" id="setup" open>
+    <summary style="font:700 14px var(--display);cursor:pointer;list-style:none">⚙︎ Source &amp; settings</summary>
+    <label>Free model</label>
+    <div class="row">
+      <select id="provider">
+        <option value="groq">Groq — free, fast (Llama)</option>
+        <option value="gemini">Google Gemini — free tier</option>
+        <option value="manual">No model — I'll paste cards myself</option>
+      </select>
+    </div>
+    <div id="keyRow">
+      <label>API key <span id="keyHelp" class="hintrow"></span></label>
+      <input id="key" type="password" autocomplete="off" placeholder="paste key — stored only on this device">
+    </div>
+    <label id="notesLabel">Paste your session notes</label>
+    <textarea id="notes" placeholder="Paste the raw notes / what happened. The model turns it into flashcards.&#10;&#10;Manual format (one card per blank-line block):&#10;TAG | Title | short subtitle&#10;- bullet one&#10;- bullet two&#10;say: one spoken line"></textarea>
+    <div class="row">
+      <button class="build" id="build">Build deck ✨</button>
+      <button class="ghost" id="sample" style="flex:0 0 auto">Load example</button>
+    </div>
+    <div class="status" id="status"></div>
+  </details>
+
+  <div class="stage"><div class="card" id="card" tabindex="0" role="button" aria-label="Flip card"></div></div>
+  <nav>
+    <button id="prev" aria-label="Previous card">‹</button>
+    <div class="dots" id="dots"></div>
+    <button id="next" aria-label="Next card">›</button>
+  </nav>
+
+  <details class="ideas">
+    <summary>Idea queue (<span id="ideaCount">0</span>)</summary>
+    <ul id="ideaList"></ul>
+    <div class="ideaform"><input id="ideaIn" type="text" placeholder="Add an idea…"><label><input id="ideaFree" type="checkbox"> $0</label><button id="ideaAdd">Add</button></div>
+  </details>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+function shadeHex(h,t){return '#'+[1,3,5].map(k=>{const v=parseInt(h.slice(k,k+2),16);return Math.round(t<0?v*(1+t):v+(255-v)*t).toString(16).padStart(2,'0')}).join('')}
+function person(o){
+  const {skin,lip,hair,eye,style,role,mood='smile'}=o;
+  const dark=shadeHex(hair,-.35);
+  const eyeAt=(x)=> mood==='wink'&&x===100
+    ? `<path d="M${x-13} 127 Q${x} 120 ${x+13} 127" stroke="#2b1d1a" stroke-width="3" fill="none" stroke-linecap="round"/>`
+    : `<path d="M${x-14} 126 Q${x} ${mood==='wow'?110:114} ${x+14} 126 Q${x} 135 ${x-14} 126Z" fill="#fff"/>
+       <circle cx="${x}" cy="125" r="6.5" fill="${eye}"/><circle cx="${x}" cy="125" r="3.2" fill="#1a1210"/><circle cx="${x+2.2}" cy="122.6" r="1.7" fill="#fff"/>
+       <path d="M${x-15} 126 Q${x} ${mood==='wow'?108:112} ${x+15} 125" stroke="#2b1d1a" stroke-width="2.6" fill="none" stroke-linecap="round"/>`;
+  const brows = mood==='pout'
+    ? `<path d="M88 106 L112 110 M152 106 L128 110" stroke="${dark}" stroke-width="4.5" stroke-linecap="round"/>`
+    : `<path d="M87 ${mood==='wow'?100:106} Q100 ${mood==='wow'?94:100} 113 105 M127 105 Q140 ${mood==='wow'?94:100} 153 ${mood==='wow'?100:106}" stroke="${dark}" stroke-width="4.5" fill="none" stroke-linecap="round"/>`;
+  const lips = mood==='wow' ? `<ellipse cx="120" cy="168" rx="6" ry="5.5" fill="#5a2230"/>`
+    : mood==='pout' ? `<path d="M109 167 Q120 163 131 167 Q120 172 109 167Z" fill="${lip}"/>`
+    : `<path d="M106 164 Q120 178 134 164 Q120 168 106 164Z" fill="${lip}"/><path d="M110 165.5 Q120 168 130 165.5" stroke="#fff" stroke-width="1.6" opacity=".8"/>`;
+  const backHair={
+    afro:`<g fill="${hair}">${[[120,70,58],[72,96,34],[168,96,34],[64,140,28],[176,140,28],[90,52,30],[150,52,30]].map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}"/>`).join('')}</g>`,
+    bun:`<circle cx="120" cy="34" r="22" fill="${hair}"/>`,
+    long:`<path d="M72 100 C62 170 66 230 74 262 H166 C174 230 178 170 168 100 C160 50 80 50 72 100Z" fill="${hair}"/>`,
+    short:``
+  }[style];
+  const frontHair={
+    afro:`<g fill="${hair}">${[[84,82,16],[104,72,17],[126,70,17],[148,78,16],[160,94,12],[80,98,11]].map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}"/>`).join('')}</g>`,
+    bun:`<path d="M75 116 Q70 50 120 46 Q170 50 165 116 Q158 82 136 74 Q108 70 92 84 Q80 96 75 116Z" fill="${hair}"/><path d="M100 54 Q120 48 144 56" stroke="#fff" stroke-opacity=".25" stroke-width="4" fill="none"/>`,
+    long:`<path d="M74 122 Q66 46 120 42 Q174 46 166 122 Q164 96 156 84 Q134 70 112 74 Q94 80 84 98 Q78 108 74 122Z" fill="${hair}"/>
+          <path d="M75 104 Q66 160 74 214 Q80 170 82 118Z" fill="${hair}"/><path d="M165 104 Q174 160 166 214 Q160 170 158 118Z" fill="${hair}"/>
+          <path d="M98 58 Q124 48 150 62" stroke="#fff" stroke-opacity=".18" stroke-width="5" fill="none" stroke-linecap="round"/>`,
+    short:`<path d="M76 112 Q72 50 122 44 Q170 48 166 104 Q160 92 156 80 Q130 64 104 78 Q86 74 76 112Z" fill="${hair}"/><path d="M76 112 Q76 96 80 90 L80 120Z" fill="${dark}" opacity=".6"/><path d="M162 104 L164 118 L160 118Z" fill="${dark}" opacity=".6"/>`
+  }[style];
+  const outfit={
+    sound:`<path d="M40 280 Q46 236 104 226 Q120 238 136 226 Q194 236 200 280Z" fill="#1fa39a"/>
+           <path d="M84 214 Q120 252 156 214" stroke="#2a2a35" stroke-width="9" fill="none"/><rect x="72" y="204" width="20" height="30" rx="9" fill="#2a2a35"/><rect x="148" y="204" width="20" height="30" rx="9" fill="#2a2a35"/><circle cx="82" cy="219" r="5" fill="#ff4f9a"/><circle cx="158" cy="219" r="5" fill="#ff4f9a"/>`,
+    pilot:`<path d="M40 280 Q46 236 104 226 L120 246 L136 226 Q194 236 200 280Z" fill="#f4f6fb"/>
+           <path d="M114 236 L120 246 L126 236 L124 280 H116Z" fill="#1d2b55"/>
+           <g fill="#1d2b55"><path d="M52 246 L96 234 L98 244 L56 258Z"/><path d="M188 246 L144 234 L142 244 L184 258Z"/></g>
+           <g stroke="#ffb627" stroke-width="2.5"><path d="M62 248 L92 240 M64 254 L94 246"/><path d="M178 248 L148 240 M176 254 L146 246"/></g>`,
+    bar:`<path d="M40 280 Q46 236 104 226 L120 244 L136 226 Q194 236 200 280Z" fill="#fbfbfd"/>
+         <path d="M58 280 Q62 246 98 236 L116 280Z M182 280 Q178 246 142 236 L124 280Z" fill="#1c1a24"/>
+         <path d="M106 232 L120 240 L106 248Z M134 232 L120 240 L134 248Z" fill="#c8243f"/><circle cx="120" cy="240" r="3.5" fill="#c8243f"/>
+         <circle cx="119" cy="258" r="2" fill="#c9a24b"/><circle cx="119" cy="270" r="2" fill="#c9a24b"/>`,
+    hoodie:`<path d="M66 236 Q120 206 174 236 Q150 226 120 226 Q90 226 66 236Z" fill="#5a3fd1"/>
+            <path d="M40 280 Q46 236 100 228 Q120 244 140 228 Q194 236 200 280Z" fill="#6b4ff0"/>
+            <path d="M110 238 L106 268 M130 238 L134 268" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M92 262 H148 V280 H92Z" fill="#5a3fd1"/>`
+  }[role];
+  const extra={
+    pilot:`<g fill="#3a2a1a" opacity=".9"><path d="M88 62 Q100 54 112 62 Q110 78 98 78 Q86 76 88 62Z"/><path d="M128 62 Q140 54 152 62 Q154 76 142 78 Q130 78 128 62Z"/></g><path d="M112 62 Q120 58 128 62" stroke="#c9a24b" stroke-width="2.5" fill="none"/>`,
+    hoodie:`<g stroke="#2b1d1a" stroke-width="2.6" fill="none"><circle cx="100" cy="125" r="15"/><circle cx="140" cy="125" r="15"/><path d="M115 123 Q120 119 125 123"/></g>`,
+    sound:``,bar:``
+  }[role];
+  return `<svg viewBox="0 0 240 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    ${backHair}
+    ${outfit}
+    <path d="M106 186 H134 V230 Q120 238 106 230Z" fill="${skin}"/><path d="M106 192 Q120 206 134 192 V200 Q120 212 106 200Z" fill="#000" opacity=".1"/>
+    <ellipse cx="76" cy="130" rx="7" ry="11" fill="${skin}"/><ellipse cx="164" cy="130" rx="7" ry="11" fill="${skin}"/>
+    <path d="M76 112 Q74 170 120 198 Q166 170 164 112 Q162 52 120 50 Q78 52 76 112Z" fill="${skin}"/>
+    ${role==='bar'?'<circle cx="76" cy="142" r="3" fill="#c9a24b"/><circle cx="164" cy="142" r="3" fill="#c9a24b"/>':''}
+    ${brows}${eyeAt(100)}${eyeAt(140)}
+    <path d="M121 130 Q116 146 118 150 Q122 153 127 150" stroke="${shadeHex(skin,-.3)}" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <ellipse cx="92" cy="152" rx="10" ry="5" fill="#ff7b8a" opacity=".18"/><ellipse cx="148" cy="152" rx="10" ry="5" fill="#ff7b8a" opacity=".18"/>
+    ${lips}
+    ${frontHair}
+    ${extra}
+  </svg>`;
+}
+const cast=[
+  {name:'Mira',job:'sound engineer',skin:'#9b6247',lip:'#7a3340',hair:'#1c1412',eye:'#4a2c1a',style:'afro',role:'sound'},
+  {name:'Jo',job:'airline pilot',skin:'#f1c8ab',lip:'#c4566a',hair:'#9c3f1f',eye:'#3c7a5a',style:'bun',role:'pilot'},
+  {name:'Kai',job:'security hacker',skin:'#e3b48f',lip:'#b65a62',hair:'#6b4ff0',eye:'#3b2a20',style:'short',role:'hoodie'},
+  {name:'Rae',job:'bartender',skin:'#d39a74',lip:'#a8324a',hair:'#14110f',eye:'#3a2618',style:'long',role:'bar'}
+];
+const MOODS=['smile','wow','pout','wink'], EDGES=['#ff4f9a','#4f7dff','#ffb627','#2bb673','#7c9cff'];
+
+/* ---- deck state ---- */
+let cards=[], i=0, flipped=false;
+function decorate(list){return list.map((c,k)=>({
+  tag:c.tag||'Note', title:c.title||('Card '+(k+1)), sub:c.sub||'',
+  back:(Array.isArray(c.back)&&c.back.length?c.back:[c.sub||'']),
+  say:c.say||'', g:cast[k%cast.length], mood:MOODS[k%MOODS.length], edge:EDGES[k%EDGES.length]
+}))}
+function render(){
+  const el=$('card');
+  if(!cards.length){el.removeAttribute('style');el.innerHTML='<div class="face front" style="--edge:var(--line)"><div class="art" style="color:var(--muted);font:600 14px var(--body);text-align:center;padding:24px">Paste notes above and hit <b>Build deck</b>.</div></div>';$('dots').innerHTML='';$('prev').disabled=$('next').disabled=true;return}
+  const c=cards[i];el.style.setProperty('--edge',c.edge);el.classList.toggle('flipped',flipped);
+  el.innerHTML=`
+   <div class="face front">
+     <div class="top"><span>No. ${String(i+1).padStart(2,'0')} / ${String(cards.length).padStart(2,'0')}</span><span class="chip">${esc(c.tag)}</span></div>
+     <div class="art">${person({...c.g,mood:c.mood})}<span class="spark" style="top:14%;left:14%">✦</span><span class="spark" style="top:24%;right:12%;font-size:13px">✦</span></div>
+     <div class="title"><small class="who">${c.g.name} · ${c.g.job}</small><h2>${esc(c.title)}</h2><p>${esc(c.sub)}</p></div>
+     <div class="tap">tap to flip</div>
+   </div>
+   <div class="face back">
+     <div class="top"><span>No. ${String(i+1).padStart(2,'0')}</span><span class="chip">${esc(c.tag)}</span></div>
+     <div class="body"><h3>${esc(c.title)}</h3><ul>${c.back.map(b=>`<li>${esc(b)}</li>`).join('')}</ul></div>
+     ${c.say?`<div class="bubble">${person({...c.g,mood:'smile'})}<p><small class="who">${c.g.name} · ${c.g.job}</small>${esc(c.say)}</p></div>`:''}
+   </div>`;
+  $('dots').innerHTML=cards.map((_,k)=>`<i class="${k===i?'on':''}"></i>`).join('');
+  $('prev').disabled=i===0;$('next').disabled=i===cards.length-1;
+}
+function esc(s){return String(s==null?'':s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))}
+function go(d){const n=i+d;if(n<0||n>=cards.length)return;i=n;flipped=false;render()}
+$('card').addEventListener('click',e=>{if(!cards.length||e.target.closest('a'))return;flipped=!flipped;$('card').classList.toggle('flipped',flipped)});
+$('card').addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();$('card').click()}});
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(1);if(e.key==='ArrowLeft')go(-1)});
+$('prev').onclick=()=>go(-1);$('next').onclick=()=>go(1);
+let sx=null;$('card').addEventListener('touchstart',e=>sx=e.touches[0].clientX,{passive:true});
+$('card').addEventListener('touchend',e=>{if(sx===null||!cards.length)return;const dx=e.changedTouches[0].clientX-sx;sx=null;if(Math.abs(dx)>50){e.preventDefault();go(dx<0?1:-1)}});
+
+/* ---- manual parser ---- */
+function parseManual(text){
+  return text.split(/\n\s*\n/).map(b=>b.trim()).filter(Boolean).map(block=>{
+    const lines=block.split('\n').map(l=>l.trim()).filter(Boolean);
+    let tag='Note',title='',sub='',back=[],say='';
+    const head=lines[0];
+    if(head.includes('|')){const p=head.split('|').map(s=>s.trim());tag=p[0]||tag;title=p[1]||'';sub=p[2]||''}
+    else if(head.includes(':')){const p=head.split(':');tag=p[0].trim();title=p.slice(1).join(':').trim()}
+    else title=head;
+    lines.slice(1).forEach(l=>{
+      if(/^say\s*:/i.test(l))say=l.replace(/^say\s*:/i,'').trim();
+      else if(/^sub\s*:/i.test(l))sub=l.replace(/^sub\s*:/i,'').trim();
+      else back.push(l.replace(/^[-*•]\s*/,''));
+    });
+    return {tag,title,sub,back,say};
+  });
+}
+
+/* ---- free-model calls ---- */
+const SYS=`Turn the user's session notes into 3 to 6 recap flashcards so they can pick up where they left off. Reply with ONLY JSON: {"cards":[{"tag","title","sub","back","say"}]}. tag = one word (Built, Fixed, Found, Next, Idea...). title = 2-4 words. sub = a short phrase. back = array of 3-5 short bullet strings. say = one short friendly spoken line. No markdown, JSON only.`;
+async function callGroq(key,notes){
+  const r=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+    body:JSON.stringify({model:'llama-3.3-70b-versatile',temperature:0.4,response_format:{type:'json_object'},messages:[{role:'system',content:SYS},{role:'user',content:notes}]})});
+  if(!r.ok)throw new Error('Groq '+r.status+' — '+(await r.text()).slice(0,120));
+  const d=await r.json();return JSON.parse(d.choices[0].message.content);
+}
+async function callGemini(key,notes){
+  const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+encodeURIComponent(key),{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({systemInstruction:{parts:[{text:SYS}]},contents:[{role:'user',parts:[{text:notes}]}],generationConfig:{responseMimeType:'application/json',temperature:0.4}})});
+  if(!r.ok)throw new Error('Gemini '+r.status+' — '+(await r.text()).slice(0,120));
+  const d=await r.json();return JSON.parse(d.candidates[0].content.parts[0].text);
+}
+
+async function build(){
+  const prov=$('provider').value, notes=$('notes').value.trim();
+  if(!notes){setStatus('Paste some notes first.',true);return}
+  $('build').disabled=true;
+  try{
+    let list;
+    if(prov==='manual'){list=parseManual(notes)}
+    else{
+      const key=$('key').value.trim();
+      if(!key){setStatus('Add your free API key, or switch to “No model”.',true);$('build').disabled=false;return}
+      localStorage.setItem('deck-key-'+prov,key);
+      setStatus('Asking the free model…');
+      const out=prov==='groq'?await callGroq(key,notes):await callGemini(key,notes);
+      list=out.cards||out;
+    }
+    if(!Array.isArray(list)||!list.length)throw new Error('No cards came back.');
+    cards=decorate(list);i=0;flipped=false;render();
+    setStatus('Built '+cards.length+' cards. Costs no Claude usage.');
+    $('setup').open=false;
+  }catch(e){setStatus(String(e.message||e),true)}
+  $('build').disabled=false;
+}
+function setStatus(t,err){const s=$('status');s.textContent=t;s.classList.toggle('err',!!err)}
+
+/* ---- provider UI ---- */
+function syncProvider(){
+  const p=$('provider').value, manual=p==='manual';
+  $('keyRow').style.display=manual?'none':'block';
+  $('notesLabel').textContent=manual?'Paste cards (manual format below)':'Paste your session notes';
+  $('key').value=localStorage.getItem('deck-key-'+p)||'';
+  $('keyHelp').innerHTML=p==='groq'?'— free at <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com/keys</a>'
+    :p==='gemini'?'— free at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>':'';
+}
+$('provider').onchange=syncProvider;
+$('build').onclick=build;
+$('sample').onclick=()=>{$('provider').value='manual';syncProvider();
+  $('notes').value=`Built | Hushfield | phone noise canceller\n- Auto mode finds the most annoying sound\n- Hosted on GitHub, opens in Chrome\nsay: Wired earbuds only!\n\nFixed | Rae's hair | drawing bug\n- A lock of hair crossed her eye\n- Swept the bangs aside\nsay: Looks right now.\n\nNext | Pick up here | open threads\n- Test Hushfield by a fridge\n- Open the Approvals homepage\nsay: Tell me which to push on.`;
+  build();
+};
+
+/* ---- idea queue ---- */
+const IK='deckbuilder-ideas';let ideas=[];
+try{ideas=JSON.parse(localStorage.getItem(IK))||[]}catch(e){}
+if(!ideas.length)ideas=[{t:'Auto-pull notes from a saved session log',free:true},{t:'Quiz mode: guess the card before flipping',free:true},{t:'Export the deck as a shareable link',free:false}];
+function saveI(){try{localStorage.setItem(IK,JSON.stringify(ideas))}catch(e){}}
+function renderI(){const ul=$('ideaList');ul.replaceChildren();ideas.forEach((it,k)=>{const li=document.createElement('li');if(it.free)li.className='free';const s=document.createElement('span');s.textContent=it.t;const b=document.createElement('button');b.textContent='done';b.onclick=()=>{ideas.splice(k,1);saveI();renderI()};li.append(s,b);ul.append(li)});$('ideaCount').textContent=ideas.length}
+$('ideaAdd').onclick=()=>{const t=$('ideaIn').value.trim();if(!t)return;ideas.push({t,free:$('ideaFree').checked});$('ideaIn').value='';$('ideaFree').checked=false;saveI();renderI()};
+$('ideaIn').onkeydown=e=>{if(e.key==='Enter')$('ideaAdd').click()};
+
+syncProvider();render();renderI();
+</script>
+</body>
+</html>
