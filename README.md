@@ -45,3 +45,9 @@ A pixel cat you raise in real time — it keeps living while the app is closed.
 # Menagerie Poker
 
 Animal-coded poker companion (Cats=Clubs, Dogs=Diamonds, Hogs=Hearts, Snakes=Spades). Source in `menagerie-poker/` (React + TS + Tailwind, `npm install && npm run dev`, `npm test`). Prebuilt single file: `poker.html`.
+
+---
+
+# HireCall site
+
+`hirecall/` — full site for hirecall.netlify.app: home, pricing, signup (Netlify form with resume upload), thanks, privacy, terms, 404. Drag the folder's contents onto Netlify to update the live site, then enable Forms → form detection.

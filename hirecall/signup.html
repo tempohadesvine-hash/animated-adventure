@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Get started — HireCall</title>
+<meta name="description" content="Send your resume and target roles. We start calling employers within one business day.">
+<meta name="theme-color" content="#0b141b">
+<meta property="og:title" content="Get started — HireCall">
+<meta property="og:description" content="Send your resume and target roles. We start calling employers within one business day.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%235fc3e4'/%3E%3Cpath d='M10 9c1 4 4 9 13 13l2-3-4-2-2 2c-2-1-4-3-5-5l2-2-2-4z' fill='%2306222d'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=IBM+Plex+Sans:wght@400;500&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<nav class="top" aria-label="Main"><div class="wrap"><a class="logo" href="index.html">Hire<span>Call</span></a><ul><li><a href="index.html">How it works</a></li><li><a href="pricing.html">Pricing</a></li><li><a href="index.html#employers">For employers</a></li><li><a href="signup.html" aria-current="page">Get started</a></li></ul></div></nav>
+<main>
+
+<div class="wrap">
+<section class="hero" style="padding-bottom:24px">
+  <span class="eyebrow">Get started</span>
+  <h1>Tell us what work you want.</h1>
+  <p class="lead">Takes about three minutes. We reply within one business day and start calling.</p>
+</section>
+<section style="padding-top:0">
+<form class="grid" id="signup" name="signup" method="POST" action="thanks.html" data-netlify="true" netlify-honeypot="company" enctype="multipart/form-data" novalidate>
+  <input type="hidden" name="form-name" value="signup">
+  <p hidden><label>Leave this empty <input name="company"></label></p>
+  <div class="row2">
+    <label for="name"><b>Full name</b><input id="name" name="name" autocomplete="name" required></label>
+    <label for="email"><b>Email</b><input id="email" name="email" type="email" autocomplete="email" required></label>
+  </div>
+  <div class="row2">
+    <label for="phone"><b>Phone</b><input id="phone" name="phone" type="tel" autocomplete="tel" required placeholder="902-555-0123"></label>
+    <label for="area"><b>Where can you work?</b><select id="area" name="area" required><option value="">Choose…</option><option>Halifax peninsula</option><option>Dartmouth</option><option>Bedford / Sackville</option><option>Clayton Park / Fairview</option><option>Anywhere in HRM</option><option>Elsewhere in Nova Scotia</option></select></label>
+  </div>
+  <label for="roles"><b>Roles you want</b><input id="roles" name="roles" required placeholder="e.g. bartender, server, security, front desk"></label>
+  <div class="row2">
+    <label for="availability"><b>Availability</b><select id="availability" name="availability" required><option value="">Choose…</option><option>Full-time</option><option>Part-time</option><option>Evenings and weekends</option><option>Anything</option></select></label>
+    <label for="plan"><b>Sprint</b><select id="plan" name="plan" required><option value="starter">Starter — $49, 40 calls, 7 days</option><option value="full">Full — $99, 100 calls, 14 days</option></select></label>
+  </div>
+  <label for="experience"><b>Your best experience in two lines</b><textarea id="experience" name="experience" placeholder="e.g. 3 years bartending at a busy pub; Smart Serve; can open and close."></textarea></label>
+  <label for="resume"><b>Resume</b> (PDF or Word, under 8 MB)<input id="resume" name="resume" type="file" accept=".pdf,.doc,.docx"></label>
+  <label class="check" for="consent"><input id="consent" name="consent" type="checkbox" value="yes" required><span>I allow HireCall to call employers on my behalf, share my resume and contact details with them, and I agree to the <a href="terms.html">terms</a> and <a href="privacy.html">privacy policy</a>.</span></label>
+  <p class="err" id="err" role="alert"></p>
+  <div class="btns"><button class="btn primary" type="submit">Send and start my sprint</button></div>
+  <p class="note">No payment now. Prefer email? Send your resume to <a href="mailto:tempohadesvine@gmail.com?subject=HireCall%20-%20get%20me%20interviews">tempohadesvine@gmail.com</a>.</p>
+</form>
+</section>
+</div>
+<script>
+(()=>{
+  const f=document.getElementById('signup'), err=document.getElementById('err');
+  const p=new URLSearchParams(location.search).get('plan'); if(p==='full'||p==='starter') f.plan.value=p;
+  f.addEventListener('submit',e=>{
+    const bad=[...f.querySelectorAll('[required]')].find(el=>el.type==='checkbox'?!el.checked:!el.value.trim());
+    const file=f.resume.files[0];
+    let msg='';
+    if(bad) msg=bad.type==='checkbox'?'Please tick the consent box so we can call for you.':'Please fill in: '+(bad.closest('label')?.querySelector('b')?.textContent||'all fields')+'.';
+    else if(!/^\S+@\S+\.\S+$/.test(f.email.value)) msg='That email looks off. Check it and try again.';
+    else if(f.phone.value.replace(/\D/g,'').length<10) msg='Enter a 10-digit phone number.';
+    else if(file&&file.size>8e6) msg='Resume is over 8 MB. Save it smaller or email it instead.';
+    if(msg){e.preventDefault(); err.textContent=msg; bad&&bad.focus();}
+  });
+})();
+</script>
+</main>
+<footer><div class="wrap"><span>HireCall · operated by Tony Hinds · Halifax, NS · © 2026</span><span><a href="pricing.html">Pricing</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="mailto:tempohadesvine@gmail.com">tempohadesvine@gmail.com</a> · <a href="tel:+18076998511">(807) 699-8511</a></span></div></footer>
+</body>
+</html>
