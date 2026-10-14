@@ -39,3 +39,9 @@ A pixel cat you raise in real time — it keeps living while the app is closed.
 - Messes, colds and a day/night window tied to your clock
 - Neglect it for about a day and it wanders off; then you can adopt again
 - Diary of what happened while you were away, plus an idea queue
+
+---
+
+# Menagerie Poker
+
+Animal-coded poker companion (Cats=Clubs, Dogs=Diamonds, Hogs=Hearts, Snakes=Spades). Source in `menagerie-poker/` (React + TS + Tailwind, `npm install && npm run dev`, `npm test`). Prebuilt single file: `poker.html`.

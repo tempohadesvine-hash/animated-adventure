@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --color-ink: #0e1012;
+  --color-panel: #15181b;
+  --color-panel2: #1b1f23;
+  --color-line: #272c31;
+  --color-fg: #d8dbde;
+  --color-dim: #8b9198;
+  --color-faint: #5d636a;
+  --color-acc: #86ab9d;
+  --color-warn: #c8a768;
+  --color-bad: #b9807a;
+  --color-cat: #93a8c4;
+  --color-dog: #cdb075;
+  --color-hog: #c99193;
+  --color-snake: #8fb79c;
+}
+
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  background: var(--color-ink);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+* { -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+:focus-visible { outline: 1px solid var(--color-acc); outline-offset: 2px; }
+
+.scanline {
+  background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0 1px, transparent 1px 3px);
+}
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.fade-up { animation: fadeUp 0.22s ease-out both; }
+@keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+.shake { animation: shake 0.25s ease-in-out 2; }
+@keyframes blink { 50% { opacity: 0.25; } }
+.blink { animation: blink 1.6s steps(2) infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
