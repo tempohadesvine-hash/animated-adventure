@@ -2,7 +2,7 @@
 
 A phone web app that listens to the room and cancels or masks the most annoying sound.
 
-**Open on your phone:** https://raw.githack.com/tempohadesvine-hash/animated-adventure/main/index.html
+**Open on your phone:** https://raw.githack.com/tempohadesvine-hash/animated-adventure/main/hushfield.html
 
 ## What it does
 

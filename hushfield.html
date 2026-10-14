@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d1214">
+<title>Hushfield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one-column instrument panel — scope on top, mode controls, idea queue drawer */
+:root{
+  --bg:#0d1214; --panel:#151d20; --line:#24323a; --fg:#dfe9ec; --muted:#8aa0a8;
+  --accent:#4fd1c5; --anti:#f2a65a; --warn:#e5636b;
+  --display:"Chakra Petch",ui-sans-serif,system-ui,sans-serif;
+  --body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
+  --bg:#eef3f4; --panel:#ffffff; --line:#cfdcdf; --fg:#13201f; --muted:#56696f;
+  --accent:#0f8f84; --anti:#c06a14; --warn:#c23a44; color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#eef3f4; --panel:#ffffff; --line:#cfdcdf; --fg:#13201f; --muted:#56696f;
+  --accent:#0f8f84; --anti:#c06a14; --warn:#c23a44; color-scheme:light}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--body);
+  padding:max(14px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
+main{max-width:560px;margin:0 auto;display:grid;gap:14px}
+header{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+h1{font:600 26px/1 var(--display);letter-spacing:.04em;margin:0}
+h1 span{color:var(--accent)}
+.tag{font:12px var(--mono);color:var(--muted)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:10px}
+.label{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+canvas{width:100%;height:150px;display:block;border-radius:6px;background:var(--bg)}
+.readout{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.readout div{display:grid}
+.readout b{font:500 20px var(--mono);font-variant-numeric:tabular-nums}
+.readout small{font:11px var(--mono);color:var(--muted)}
+#cut{color:var(--accent)}
+.modes{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.modes button{padding:10px 2px;font:600 12px var(--display);letter-spacing:.04em}
+.modes button.picked{border-style:dashed;border-color:var(--anti);color:var(--anti)}
+.detect{display:flex;gap:8px;align-items:center;font:13px var(--mono);min-height:20px}
+.detect .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none}
+.detect.on .dot{background:var(--anti);box-shadow:0 0 0 4px color-mix(in srgb,var(--anti) 25%,transparent)}
+#detectTxt{min-width:0;overflow-wrap:anywhere}
+button{background:transparent;color:var(--fg);border:1px solid var(--line);border-radius:8px;cursor:pointer;font:500 14px var(--body)}
+button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#power{width:100%;padding:16px;font:600 18px var(--display);letter-spacing:.08em;border:2px solid var(--accent);color:var(--accent)}
+#power.on{background:var(--accent);color:var(--bg)}
+.row{display:grid;grid-template-columns:88px 1fr 64px;align-items:center;gap:10px}
+.row span{font:12px var(--mono);color:var(--muted)}
+.row output{font:13px var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.note{font-size:13px;color:var(--muted);margin:0}
+.note strong{color:var(--anti);font-weight:500}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.btns button{padding:9px 12px;font-size:13px}
+#ideas{position:fixed;right:12px;bottom:max(12px,env(safe-area-inset-bottom));width:min(300px,calc(100vw - 24px));z-index:5}
+#ideas .panel{box-shadow:0 8px 24px rgb(0 0 0 / .35)}
+#ideaToggle{position:fixed;right:12px;bottom:max(12px,env(safe-area-inset-bottom));padding:8px 12px;font:500 12px var(--mono);background:var(--panel);z-index:4}
+#ideaList{list-style:none;margin:0;padding:0;display:grid;gap:6px;max-height:180px;overflow:auto}
+#ideaList li{display:flex;gap:8px;align-items:start;font-size:13px}
+#ideaList li span{flex:1;min-width:0;overflow-wrap:anywhere}
+#ideaList li.free span::after{content:" · free";color:var(--accent);font:11px var(--mono)}
+#ideaList button{padding:0 6px;font-size:12px;color:var(--muted)}
+.ideaform{display:flex;gap:6px}
+.ideaform input[type=text]{flex:1;min-width:0;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:7px;font:13px var(--body)}
+.ideaform label{font:11px var(--mono);color:var(--muted);display:flex;align-items:center;gap:4px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>HUSH<span>FIELD</span></h1>
+    <span class="tag" id="state">idle</span>
+  </header>
+
+  <section class="panel">
+    <div class="label">Ambient spectrum · 20 Hz – 8 kHz</div>
+    <canvas id="scope" aria-label="Live frequency spectrum"></canvas>
+    <div class="detect" id="detect"><span class="dot"></span><span id="detectTxt">Auto-detect is waiting for sound</span></div>
+    <div class="readout">
+      <div><b id="peak">—</b><small>target Hz</small></div>
+      <div><b id="lvl">—</b><small>level dBFS</small></div>
+      <div><b id="cut">—</b><small>reduction dB</small></div>
+    </div>
+  </section>
+
+  <button id="power">START LISTENING</button>
+
+  <section class="panel">
+    <div class="label">Mode</div>
+    <div class="modes" role="group" aria-label="Cancellation mode">
+      <button data-mode="auto" aria-pressed="true">AUTO</button>
+      <button data-mode="lock" aria-pressed="false">HUM LOCK</button>
+      <button data-mode="invert" aria-pressed="false">LIVE INVERT</button>
+      <button data-mode="mask" aria-pressed="false">MASK</button>
+    </div>
+    <p class="note" id="modeNote"></p>
+
+    <div id="lockCtl" class="panel" style="padding:10px">
+      <div class="row"><span>Target</span><input id="freq" type="range" min="20" max="1000" step="0.1" value="60"><output id="freqO">60 Hz</output></div>
+      <div class="row"><span>Phase</span><input id="phase" type="range" min="0" max="360" step="1" value="180"><output id="phaseO">180°</output></div>
+      <div class="row"><span>Anti level</span><input id="again" type="range" min="0" max="1" step="0.005" value="0.2"><output id="againO">20%</output></div>
+      <div class="row"><span>Harmonics</span><input id="harm" type="range" min="1" max="4" step="1" value="2"><output id="harmO">2</output></div>
+      <div class="btns">
+        <button id="grab">Lock to loudest</button>
+        <button id="auto" aria-pressed="false">Auto-tune</button>
+      </div>
+    </div>
+
+    <div id="invCtl" class="panel" style="padding:10px" hidden>
+      <div class="row"><span>Low-pass</span><input id="lp" type="range" min="60" max="800" step="10" value="250"><output id="lpO">250 Hz</output></div>
+      <div class="row"><span>Delay trim</span><input id="dly" type="range" min="0" max="30" step="0.1" value="0"><output id="dlyO">0 ms</output></div>
+      <div class="row"><span>Level</span><input id="igain" type="range" min="0" max="2" step="0.01" value="0.8"><output id="igainO">80%</output></div>
+    </div>
+
+    <div id="maskCtl" class="panel" style="padding:10px" hidden>
+      <div class="btns" role="group" aria-label="Noise colour">
+        <button data-noise="brown" aria-pressed="true">Brown</button>
+        <button data-noise="pink" aria-pressed="false">Pink</button>
+        <button data-noise="white" aria-pressed="false">White</button>
+      </div>
+      <div class="row"><span>Level</span><input id="mgain" type="range" min="0" max="1" step="0.01" value="0.35"><output id="mgainO">35%</output></div>
+      <div class="row"><span>Follow room</span><input id="follow" type="range" min="0" max="1" step="0.05" value="0.5"><output id="followO">50%</output></div>
+    </div>
+  </section>
+
+  <p class="note"><strong>Use wired headphones.</strong> Phones can't cancel sound in open air; the anti-signal only works right at your ear. Hum Lock beats steady drones (fridge, fan, engine, 60 Hz hum). Voices and bangs need Mask.</p>
+</main>
+
+<button id="ideaToggle">Ideas (<span id="ideaCount">0</span>)</button>
+<aside id="ideas" hidden>
+  <div class="panel">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span class="label">Idea queue</span><button id="ideaClose" style="padding:2px 8px">✕</button>
+    </div>
+    <ul id="ideaList"></ul>
+    <div class="ideaform">
+      <input id="ideaIn" type="text" placeholder="Add an idea…">
+      <label><input id="ideaFree" type="checkbox">$0</label>
+      <button id="ideaAdd" style="padding:4px 10px">Add</button>
+    </div>
+  </div>
+</aside>
+
+<script>
+const $=id=>document.getElementById(id);
+let ctx,mic,an,buf,micSrc,out,running=false,mode='lock',wake=null;
+let oscs=[],lockBus,invBus,maskBus,noiseSrc,noiseType='brown';
+let baseline=null,autoOn=false,autoTimer=null;
+let autoMode=true,pers=null,prevLvl=-100,onsets=[],lastEval=0,pending=null,current=null;
+const FFT=16384;
+
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()}
+
+async function start(){
+  ctx=new (window.AudioContext||window.webkitAudioContext)({latencyHint:'interactive'});
+  mic=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+  micSrc=ctx.createMediaStreamSource(mic);
+  an=ctx.createAnalyser();an.fftSize=FFT;an.smoothingTimeConstant=.6;
+  buf=new Float32Array(an.frequencyBinCount);
+  micSrc.connect(an);
+  out=ctx.createGain();out.connect(ctx.destination);
+  lockBus=ctx.createGain();invBus=ctx.createGain();maskBus=ctx.createGain();
+  [lockBus,invBus,maskBus].forEach(b=>{b.gain.value=0;b.connect(out)});
+  buildLock();buildInvert();buildMask();
+  running=true;baseline=null;
+  $('power').textContent='STOP';$('power').classList.add('on');
+  $('state').textContent=`live · ${Math.round((ctx.baseLatency+(ctx.outputLatency||0))*1000)} ms latency`;
+  try{wake=await navigator.wakeLock?.request('screen')}catch(e){}
+  setMode(mode,true);if(autoMode)setMode('auto');draw();
+}
+function stop(){
+  running=false;autoOff();current=null;pending=null;pers=null;onsets=[];$('detect').classList.remove('on');$('detectTxt').textContent=autoMode?'Auto-detect starts when you tap Start':'Manual mode';
+  mic?.getTracks().forEach(t=>t.stop());ctx?.close();
+  try{wake?.release()}catch(e){}
+  $('power').textContent='START LISTENING';$('power').classList.remove('on');$('state').textContent='idle';
+  ['peak','lvl','cut'].forEach(i=>$(i).textContent='—');
+}
+
+/* ---- Hum Lock: synthesized anti-phase tone + harmonics ---- */
+function buildLock(){
+  oscs.forEach(o=>{try{o.o.stop()}catch(e){}});oscs=[];
+  const f=+$('freq').value,n=+$('harm').value;
+  for(let k=1;k<=n;k++){
+    const o=ctx.createOscillator(),d=ctx.createDelay(1),g=ctx.createGain();
+    o.frequency.value=f*k;g.gain.value=+$('again').value/k;
+    o.connect(d).connect(g).connect(lockBus);o.start();
+    oscs.push({o,d,g,k});
+  }
+  applyPhase();
+}
+function applyPhase(){
+  const f=+$('freq').value,ph=+$('phase').value;
+  oscs.forEach(({o,d,g,k})=>{
+    const fk=f*k;o.frequency.setTargetAtTime(fk,ctx.currentTime,.02);
+    d.delayTime.setTargetAtTime(((ph*k)%360)/360/fk,ctx.currentTime,.02);
+    g.gain.setTargetAtTime(+$('again').value/k,ctx.currentTime,.02);
+  });
+}
+
+/* ---- Live Invert: mic → low-pass → ×(−1) → out ---- */
+function buildInvert(){
+  const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=+$('lp').value;
+  const d=ctx.createDelay(.05);d.delayTime.value=+$('dly').value/1000;
+  const inv=ctx.createGain();inv.gain.value=-(+$('igain').value);
+  micSrc.connect(lp).connect(d).connect(inv).connect(invBus);
+  Object.assign(invBus,{lp,d,inv});
+}
+
+/* ---- Mask: coloured noise that follows room loudness ---- */
+function noiseBuffer(type){
+  const len=ctx.sampleRate*4,b=ctx.createBuffer(1,len,ctx.sampleRate),x=b.getChannelData(0);
+  let l=0,b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+  for(let i=0;i<len;i++){
+    const w=Math.random()*2-1;
+    if(type==='white')x[i]=w*.5;
+    else if(type==='brown'){l=(l+.02*w)/1.02;x[i]=l*3.5}
+    else{b0=.99886*b0+w*.0555179;b1=.99332*b1+w*.0750759;b2=.969*b2+w*.153852;b3=.8665*b3+w*.3104856;b4=.55*b4+w*.5329522;b5=-.7616*b5-w*.016834;x[i]=(b0+b1+b2+b3+b4+b5+b6+w*.5362)*.11;b6=w*.115926}
+  }
+  return b;
+}
+function buildMask(){
+  try{noiseSrc?.stop()}catch(e){}
+  noiseSrc=ctx.createBufferSource();noiseSrc.buffer=noiseBuffer(noiseType);noiseSrc.loop=true;
+  maskBus.lvl??=ctx.createGain();maskBus.lvl.disconnect();maskBus.lvl.connect(maskBus);
+  noiseSrc.connect(maskBus.lvl);noiseSrc.start();
+}
+
+function paintModes(){
+  document.querySelectorAll('[data-mode]').forEach(b=>{
+    const d=b.dataset.mode;
+    b.setAttribute('aria-pressed',d==='auto'?autoMode:(!autoMode&&d===mode));
+    b.classList.toggle('picked',autoMode&&d===mode);
+  });
+}
+function setMode(m,fromAuto){
+  if(m==='auto'){autoMode=true;pending=null;paintModes();$('detectTxt').textContent=running?'Listening for the most annoying sound…':'Auto-detect starts when you tap Start';return}
+  if(!fromAuto){autoMode=false;current=null;pending=null;$('detect').classList.remove('on');$('detectTxt').textContent='Manual mode · tap AUTO to let it pick'}
+  mode=m;paintModes();
+  $('lockCtl').hidden=m!=='lock';$('invCtl').hidden=m!=='invert';$('maskCtl').hidden=m!=='mask';
+  $('modeNote').textContent={
+    lock:'Plays an inverted copy of one steady tone. Tap “Lock to loudest”, then Auto-tune with the phone mic near your earbud.',
+    invert:'Flips the live mic signal. Phone latency limits this to deep rumble; trim delay by ear until it dips.',
+    mask:'Smooth noise that rises when the room gets loud, so sudden sounds stand out less.'
+  }[m];
+  if(m!=='lock')autoOff();
+  if(!running)return;
+  const t=ctx.currentTime;
+  lockBus.gain.setTargetAtTime(m==='lock'?1:0,t,.05);
+  invBus.gain.setTargetAtTime(m==='invert'?1:0,t,.05);
+  maskBus.gain.setTargetAtTime(m==='mask'?1:0,t,.05);
+  baseline=null;
+}
+
+/* ---- analysis ---- */
+const binHz=()=>ctx.sampleRate/FFT;
+function magAt(f){const i=Math.round(f/binHz());let m=-200;for(let j=i-2;j<=i+2;j++)m=Math.max(m,buf[j]);return m}
+function loudest(){
+  let best=-200,bi=0;const lo=Math.ceil(25/binHz()),hi=Math.floor(1000/binHz());
+  for(let i=lo;i<hi;i++)if(buf[i]>best){best=buf[i];bi=i}
+  // parabolic interpolation for sub-bin accuracy
+  const a=buf[bi-1],b=buf[bi],c=buf[bi+1],p=.5*(a-c)/(a-2*b+c||1);
+  return {f:(bi+p)*binHz(),db:best};
+}
+let smLvl=-100;
+function draw(){
+  if(!running)return;
+  an.getFloatFrequencyData(buf);
+  const cv=$('scope'),dpr=devicePixelRatio||1,W=cv.clientWidth*dpr,H=cv.clientHeight*dpr;
+  if(cv.width!==W){cv.width=W;cv.height=H}
+  const g=cv.getContext('2d');g.clearRect(0,0,W,H);
+  const lx=f=>Math.log(f/20)/Math.log(400)*W, ly=db=>H-(db+110)/90*H;
+  g.strokeStyle=css('--line');g.lineWidth=1;g.fillStyle=css('--muted');g.font=`${10*dpr}px IBM Plex Mono, monospace`;
+  [50,100,200,500,1000,2000,5000].forEach(f=>{const x=lx(f);g.beginPath();g.moveTo(x,0);g.lineTo(x,H);g.stroke();g.fillText(f>=1000?f/1000+'k':f,x+3*dpr,H-4*dpr)});
+  g.beginPath();g.strokeStyle=css('--accent');g.lineWidth=1.5*dpr;
+  for(let x=0;x<W;x+=2){const f=20*Math.pow(400,x/W);const y=ly(buf[Math.round(f/binHz())]);x?g.lineTo(x,y):g.moveTo(x,y)}
+  g.stroke();
+  const tf=current?.f??(mode==='lock'?+$('freq').value:null);
+  if(tf){const x=lx(tf);g.strokeStyle=css('--anti');g.setLineDash([4*dpr,4*dpr]);g.beginPath();g.moveTo(x,0);g.lineTo(x,H);g.stroke();g.setLineDash([])}
+  const pk=loudest();$('peak').textContent=(mode==='lock'?+$('freq').value:(current?.f??pk.f)).toFixed(1);
+  detectFrame();
+  if(autoMode&&performance.now()-lastEval>1500){lastEval=performance.now();evaluate()}
+  // overall level 20 Hz–2 kHz
+  let s=0,n=0;for(let i=Math.ceil(20/binHz());i<2000/binHz();i++){s+=Math.pow(10,buf[i]/10);n++}
+  smLvl=.9*smLvl+.1*(10*Math.log10(s+1e-12));$('lvl').textContent=smLvl.toFixed(0);
+  const target=mode==='lock'?magAt(+$('freq').value):smLvl;
+  if(baseline===null)baseline=target;
+  $('cut').textContent=(baseline-target).toFixed(1);
+  if(mode==='mask'){const fol=+$('follow').value,lvl=+$('mgain').value*(1-fol+fol*Math.min(1,Math.max(0,(smLvl+70)/40)));maskBus.lvl.gain.setTargetAtTime(lvl,ctx.currentTime,.3)}
+  requestAnimationFrame(draw);
+}
+
+/* ---- auto-detect: score sounds by how annoying they are ----
+   annoyance ≈ loudness as the ear hears it (A-weighting)
+             + tonality (how far a peak stands above its neighbours)
+             × persistence (how much of the time it is there) */
+function aWeight(f){const f2=f*f,ra=(12194**2*f2*f2)/((f2+20.6**2)*Math.sqrt((f2+107.7**2)*(f2+737.9**2))*(f2+12194**2));return 20*Math.log10(ra)+2}
+let prom=null,instPrev=-100,lowShare=0,fluct=0,instEma=-100;
+function detectFrame(){
+  const bh=binHz(),lo=Math.ceil(25/bh),hi=Math.min(buf.length-60,Math.floor(8000/bh));
+  if(!pers||pers.length!==buf.length){pers=new Float32Array(buf.length);prom=new Float32Array(buf.length)}
+  for(let i=lo;i<hi;i++)pers[i]*=.985;
+  for(let i=lo;i<hi;i++){
+    if(!(buf[i]>buf[i-1]&&buf[i]>=buf[i+1]&&buf[i]>-95))continue;
+    const w=Math.max(4,Math.round(i*.04)),gap=Math.max(2,Math.round(w/3));
+    let s=0,n=0;
+    for(let j=i-gap-w;j<i-gap;j++)if(j>0){s+=buf[j];n++}
+    for(let j=i+gap;j<i+gap+w;j++){s+=buf[j];n++}
+    const p=buf[i]-s/n;
+    if(p>8){for(let j=i-1;j<=i+1;j++){pers[j]=Math.min(1,pers[j]+.015/(j===i?1:2));prom[j]=.9*prom[j]+.1*p}}
+  }
+  let lowE=0,allE=0,midE=0;
+  for(let i=lo;i<hi;i++){const e=Math.pow(10,buf[i]/10);allE+=e;if(i*bh<200)lowE+=e;if(i*bh>100&&i*bh<4000)midE+=e}
+  lowShare=.97*lowShare+.03*(lowE/(allE+1e-12));
+  const inst=10*Math.log10(midE+1e-12);
+  if(inst-instPrev>8)onsets.push(performance.now());
+  instPrev=inst;instEma=.95*instEma+.05*inst;fluct=.97*fluct+.03*Math.abs(inst-instEma);
+  const now=performance.now();onsets=onsets.filter(t=>now-t<3000);
+}
+function evaluate(){
+  const bh=binHz();let best=null;
+  for(let i=Math.ceil(25/bh);i<Math.floor(8000/bh);i++){
+    if(pers[i]<.5)continue;
+    let isMax=true;for(let j=i-3;j<=i+3;j++)if(pers[j]>pers[i]||(pers[j]===pers[i]&&j<i)){isMax=false;break}
+    if(!isMax)continue;
+    const f=i*bh,score=(buf[i]+110+aWeight(f)+.5*prom[i])*pers[i];
+    if(!best||score>best.score)best={f,score,pers:pers[i],prom:prom[i]};
+  }
+  // refine frequency with the live peak near the winning bin
+  if(best){const i=Math.round(best.f/bh);let bi=i;for(let j=i-2;j<=i+2;j++)if(buf[j]>buf[bi])bi=j;
+    const a=buf[bi-1],b=buf[bi],c=buf[bi+1];best.f=(bi+.5*(a-c)/(a-2*b+c||1))*bh}
+  const busy=onsets.length>=4||fluct>4;
+  let d;
+  if(best&&best.pers>=.6&&best.prom>=10&&best.f<=1000)
+    d={mode:'lock',f:best.f,key:'lock'+Math.round(Math.log(best.f)/Math.log(1.02)),
+       txt:`Steady hum at ${best.f.toFixed(1)} Hz · there ${Math.round(best.pers*100)}% of the time · ${best.prom.toFixed(0)} dB above the rest`};
+  else if(best&&best.pers>=.6&&best.prom>=10)
+    d={mode:'mask',f:best.f,key:'whine'+Math.round(best.f/50),
+       txt:`High whine at ${(best.f/1000).toFixed(2)} kHz · too high to cancel, masking it`};
+  else if(smLvl<-78)
+    d={mode:current?.mode||'mask',f:null,key:current?.key||'quiet',txt:'Quiet room · nothing worth cancelling'};
+  else if(lowShare>.55&&!busy)
+    d={mode:'invert',f:null,key:'rumble',txt:`Low rumble · ${Math.round(lowShare*100)}% of the noise is under 200 Hz, inverting it`};
+  else if(busy)
+    d={mode:'mask',f:null,key:'busy',txt:`Voices or clatter · ${onsets.length} sudden sounds in 3 s, masking`};
+  else
+    d={mode:'mask',f:null,key:'broad',txt:'Broadband noise · masking'};
+  $('detect').classList.add('on');
+  if(current&&d.key===current.key){$('detectTxt').textContent=d.txt;return}
+  if(!pending||pending.key!==d.key){pending=d;if(!current)$('detectTxt').textContent='Checking: '+d.txt;return}
+  // same verdict twice in a row → act on it
+  pending=null;current=d;$('detectTxt').textContent=d.txt;
+  setMode(d.mode,true);
+  if(d.mode==='lock'){$('freq').value=d.f.toFixed(1);sync();applyPhase();baseline=null;autoOff();autoTune()}
+  if(d.mode==='invert'){$('lp').value=250;sync();invBus.lp.frequency.value=250}
+}
+
+/* ---- auto-tune: coordinate descent on phase, then level, minimizing mic energy at target ---- */
+function autoOff(){autoOn=false;clearInterval(autoTimer);$('auto').setAttribute('aria-pressed','false')}
+function autoTune(){
+  if(autoOn)return autoOff();
+  autoOn=true;$('auto').setAttribute('aria-pressed','true');
+  let step=20,param='phase',lastE=Infinity,dir=1,flips=0;
+  autoTimer=setInterval(()=>{
+    const e=magAt(+$('freq').value);
+    if(e>lastE){dir=-dir;flips++;if(flips%2===0){step=Math.max(param==='phase'?1:.005,step/2)}}
+    lastE=e;
+    if(param==='phase'){let v=(+$('phase').value+dir*step+360)%360;$('phase').value=v}
+    else{let v=Math.min(1,Math.max(0,+$('again').value+dir*step));$('again').value=v}
+    if(flips>8){param=param==='phase'?'gain':'phase';step=param==='phase'?10:.04;flips=0;lastE=Infinity}
+    sync();applyPhase();
+  },180);
+}
+
+/* ---- wiring ---- */
+function sync(){
+  $('freqO').value=(+$('freq').value).toFixed(1)+' Hz';$('phaseO').value=Math.round($('phase').value)+'°';
+  $('againO').value=Math.round($('again').value*100)+'%';$('harmO').value=$('harm').value;
+  $('lpO').value=$('lp').value+' Hz';$('dlyO').value=(+$('dly').value).toFixed(1)+' ms';
+  $('igainO').value=Math.round($('igain').value*100)+'%';$('mgainO').value=Math.round($('mgain').value*100)+'%';
+  $('followO').value=Math.round($('follow').value*100)+'%';
+}
+document.querySelectorAll('input[type=range]').forEach(i=>i.addEventListener('input',()=>{
+  sync();if(!running)return;
+  if(i.id==='harm')buildLock();
+  else if(['freq','phase','again'].includes(i.id)){applyPhase();if(i.id==='freq')baseline=null}
+  else if(i.id==='lp')invBus.lp.frequency.value=+i.value;
+  else if(i.id==='dly')invBus.d.delayTime.value=i.value/1000;
+  else if(i.id==='igain')invBus.inv.gain.value=-i.value;
+}));
+$('power').onclick=()=>running?stop():start().catch(e=>{
+  const why=!window.isSecureContext||!navigator.mediaDevices?'Needs https:// — open it from your GitHub Pages link in Chrome, not a preview or file viewer.'
+    :e.name==='NotAllowedError'?'Mic blocked. In Chrome: tap the icon left of the address › Permissions › Microphone › Allow, then reload. Also check Android Settings › Apps › Chrome › Permissions › Microphone.'
+    :e.name==='NotFoundError'?'No microphone found.':e.name==='NotReadableError'?'Another app is using the mic. Close it and try again.':e.name+': '+e.message;
+  $('state').textContent='mic error';$('detect').classList.remove('on');$('detectTxt').textContent=why;console.error(e)});
+document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
+document.querySelectorAll('[data-noise]').forEach(b=>b.onclick=()=>{noiseType=b.dataset.noise;document.querySelectorAll('[data-noise]').forEach(x=>x.setAttribute('aria-pressed',x===b));if(running)buildMask()});
+$('grab').onclick=()=>{if(!running)return;autoMode=false;current=null;paintModes();const pk=loudest();$('freq').value=pk.f.toFixed(1);sync();applyPhase();baseline=null};
+$('auto').onclick=()=>{if(running&&mode==='lock'){baseline=null;autoTune()}};
+document.addEventListener('visibilitychange',async()=>{if(running&&document.visibilityState==='visible'){try{wake=await navigator.wakeLock?.request('screen')}catch(e){}}});
+sync();setMode('lock',true);setMode('auto');
+
+/* ---- idea queue ---- */
+const IK='hushfield-ideas';
+let ideas=[];try{ideas=JSON.parse(localStorage.getItem(IK))||[]}catch(e){}
+if(!ideas.length)ideas=[
+  {t:'Save presets per place (car, bedroom, laundromat)',free:true},
+  {t:'Bluetooth latency calibration with a click test',free:true},
+  {t:'Native Android build for lower latency (Oboe)',free:false}
+];
+function saveIdeas(){try{localStorage.setItem(IK,JSON.stringify(ideas))}catch(e){}}
+function renderIdeas(){
+  const ul=$('ideaList');ul.replaceChildren();
+  ideas.forEach((it,i)=>{const li=document.createElement('li');if(it.free)li.className='free';
+    const s=document.createElement('span');s.textContent=it.t;
+    const x=document.createElement('button');x.textContent='done';x.onclick=()=>{ideas.splice(i,1);saveIdeas();renderIdeas()};
+    li.append(s,x);ul.append(li)});
+  $('ideaCount').textContent=ideas.length;
+}
+$('ideaAdd').onclick=()=>{const t=$('ideaIn').value.trim();if(!t)return;ideas.push({t,free:$('ideaFree').checked});$('ideaIn').value='';$('ideaFree').checked=false;saveIdeas();renderIdeas()};
+$('ideaIn').onkeydown=e=>{if(e.key==='Enter')$('ideaAdd').click()};
+$('ideaToggle').onclick=()=>{$('ideas').hidden=false;$('ideaToggle').hidden=true};
+$('ideaClose').onclick=()=>{$('ideas').hidden=true;$('ideaToggle').hidden=false};
+renderIdeas();
+</script>
+</body>
+</html>
