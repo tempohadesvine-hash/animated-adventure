@@ -23,3 +23,19 @@ Includes a live 20 Hz – 8 kHz spectrum, a reduction readout in dB, a screen wa
 ## Limits
 
 Browser audio adds 20–50 ms of latency, so true cancellation only works on steady, low-pitched sound. Voices and sudden noises get masked instead. A native Android build (Oboe) is the next step for lower latency.
+
+---
+
+# Catgotchi
+
+A pixel cat you raise in real time — it keeps living while the app is closed.
+
+**Open on your phone:** https://raw.githack.com/tempohadesvine-hash/animated-adventure/main/cat.html
+
+- Name it and pick a fur colour (ginger, grey, black, cream)
+- Stats: food, fun, energy, clean, health — they drop over real hours
+- Feed (kibble or fish treat), laser-pointer mini-game, pet (tap the cat), clean, sleep/wake, meds
+- Grows from kitten to adult to senior; weight goes up with treats and down with play
+- Messes, colds and a day/night window tied to your clock
+- Neglect it for about a day and it wanders off; then you can adopt again
+- Diary of what happened while you were away, plus an idea queue
