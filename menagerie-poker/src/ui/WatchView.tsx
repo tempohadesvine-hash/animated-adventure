@@ -1,10 +1,10 @@
 import { useRef, useState } from 'react';
-import { RANKS, makeRng, rankValue } from '../poker/cards';
+import { ANIMAL_SUITS, RANKS, makeRng, rankValue, type Suit } from '../poker/cards';
 import { ACTIVE_PACK, POSITIONS, type Position } from '../data/strategy';
 import { limitStatus, makeQuestion, sessionNet } from '../poker/practice';
 import { cryptoId } from '../poker/profile';
 import { Panel, pct } from './kit';
-import { AnimalIcon } from './Animals';
+import { AnimalIcon, PixelSprite } from './Animals';
 import { ACTION_COLOR } from './MatrixView';
 import { animalBus, buzz, useStore } from '../state/store';
 
@@ -46,6 +46,8 @@ export function WatchView() {
   const st = limitStatus(s.session.entries, s.session.limit);
   const used = Math.min(1, Math.max(0, -net / s.session.limit.maxLoss));
 
+  const mascot: Suit = screen === 2 ? q.cards[0].suit : screen === 1 ? 'd' : 'c';
+
   const answer = (a: 'raise' | 'fold') => {
     if (qRes !== null) { setQ(makeQuestion(ACTIVE_PACK, rng, 'RFI')); setQRes(null); return; }
     const ok = a === q.answer;
@@ -56,19 +58,22 @@ export function WatchView() {
 
   return (
     <div className="grid gap-3 lg:grid-cols-[auto_minmax(0,1fr)]">
-      <Panel title="Galaxy Watch 5 · concept">
-        <div className="flex flex-col items-center gap-3">
+      <Panel title="Galaxy Watch 5 · concept · pixel shell">
+        <div className="toy-shell mx-auto flex w-fit flex-col items-center gap-3 px-[22px] pt-[34px] pb-[26px]">
+          <div className="font-pixel text-[11px] tracking-wider text-[#fbe7cf] [text-shadow:0_1px_0_rgba(0,0,0,.35)]">MENAGERIE·WATCH</div>
           <div
-            className="relative grid aspect-square w-[min(78vw,300px)] select-none place-items-center rounded-full border-[10px] border-[#24282c] bg-black shadow-[0_0_0_2px_#33383d,0_10px_40px_rgba(0,0,0,.6)]"
+            className="toy-lcd relative grid aspect-square w-[min(62vw,272px)] select-none place-items-center overflow-hidden"
             onWheel={(e) => rotate(e.deltaY > 0 ? 1 : -1)}
             onTouchStart={(e) => { touch.current = e.touches[0].clientX; }}
             onTouchEnd={(e) => { if (touch.current === null) return; const dx = e.changedTouches[0].clientX - touch.current; if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1); touch.current = null; }}
             role="application" aria-label="Watch face. Scroll or use bezel buttons to rotate; swipe to change screen."
           >
-            <div className="absolute top-[9%] flex gap-1">{SCREENS.map((_, i) => <i key={i} className={`h-1 w-1 rounded-full ${i === screen ? 'bg-fg' : 'bg-faint'}`} />)}</div>
+            <div className="absolute top-[6%] flex gap-1">{SCREENS.map((_, i) => <i key={i} className={`h-1.5 w-1.5 ${i === screen ? 'bg-[#e9dcc5]' : 'bg-faint'}`} />)}</div>
+            <div className="absolute top-[5%] left-[6%] font-pixel text-[9px] text-dim">{SCREENS[screen].toUpperCase()}</div>
+            <PixelSprite suit={mascot} frame={qRes === null ? 'sit' : qRes ? 'happy' : 'sad'} size={32} className={`absolute right-[5%] bottom-[4%] ${qRes === false ? 'shake' : ''}`} title={`${ANIMAL_SUITS[mascot].animal} (${ANIMAL_SUITS[mascot].suitName}) mascot`} />
             {screen === 0 && (
               <div className="fade-up flex flex-col items-center gap-1 font-mono">
-                <div className="text-[9px] text-dim">QUICK HAND · 100bb RFI</div>
+                <div className="font-pixel text-[10px] text-dim">QUICK HAND · 100bb RFI</div>
                 <div className="flex items-center gap-1 text-3xl">
                   {[r1, r2].map((r, i) => (
                     <button key={i} onClick={() => setField(i as 0 | 1)} className={`rounded px-1.5 ${field === i ? 'bg-panel2 text-fg' : 'text-dim'}`}>{r}</button>
@@ -79,19 +84,19 @@ export function WatchView() {
                   <button onClick={() => setField(3)} className={`rounded px-1.5 py-0.5 ${field === 3 ? 'bg-panel2' : 'text-dim'}`}>{pos}</button>
                 </div>
                 <button onClick={() => hap('confirm')} className="mt-1 text-2xl uppercase" style={{ color: act && act !== 'fold' ? ACTION_COLOR[act] : 'var(--color-dim)' }}>{act ?? 'n/a'}</button>
-                <div className="text-[8px] text-faint">illustrative pack</div>
+                <div className="font-pixel text-[9px] text-warn">ILLUSTRATIVE pack</div>
               </div>
             )}
             {screen === 1 && (
               <div className="fade-up relative grid place-items-center font-mono">
-                <svg width="150" height="150" viewBox="0 0 100 100" className="-rotate-90">
+                <svg width="140" height="140" viewBox="0 0 100 100" className="-rotate-90">
                   <circle cx="50" cy="50" r="44" fill="none" stroke="#1b1f23" strokeWidth="6" />
                   <circle cx="50" cy="50" r="44" fill="none" strokeWidth="6" strokeLinecap="round"
                     stroke={st === 'stop' ? 'var(--color-bad)' : st === 'warn' ? 'var(--color-warn)' : 'var(--color-acc)'}
                     strokeDasharray={`${used * 276.5} 276.5`} className="transition-all duration-500" />
                 </svg>
                 <div className="absolute text-center">
-                  <div className="text-[9px] text-dim">NET</div>
+                  <div className="font-pixel text-[10px] text-dim">NET</div>
                   <div className={`text-xl ${net < 0 ? 'text-bad' : 'text-acc'}`}>{net.toFixed(2)}</div>
                   <div className="text-[9px] text-dim">limit {s.session.limit.currency}{s.session.limit.maxLoss}</div>
                   {st !== 'ok' && <div className="blink text-[9px] text-bad">{st === 'stop' ? 'STOP' : 'NEAR LIMIT'}</div>}
@@ -100,7 +105,7 @@ export function WatchView() {
             )}
             {screen === 2 && (
               <div className="fade-up flex flex-col items-center gap-1.5 font-mono">
-                <div className="text-[9px] text-dim">{q.pos} · {q.stack}bb · open?</div>
+                <div className="font-pixel text-[10px] text-dim">{q.pos} · {q.stack}bb · open?</div>
                 <div className="flex items-center gap-1 text-2xl">
                   {q.cards.map((c) => <span key={c.rank + c.suit} className="flex items-center">{c.rank}<AnimalIcon suit={c.suit} size={16} /></span>)}
                 </div>
@@ -113,17 +118,17 @@ export function WatchView() {
               </div>
             )}
           </div>
-          <div className="flex gap-2 font-mono text-[11px]">
-            <button className="rounded border border-line px-3 py-1.5" onClick={() => rotate(-1)} aria-label="Rotate bezel counter-clockwise">⟲ bezel</button>
-            <button className="rounded border border-line px-3 py-1.5" onClick={() => go(-1)} aria-label="Previous screen">‹</button>
-            <button className="rounded border border-line px-3 py-1.5" onClick={() => go(1)} aria-label="Next screen">›</button>
-            <button className="rounded border border-line px-3 py-1.5" onClick={() => rotate(1)} aria-label="Rotate bezel clockwise">bezel ⟳</button>
+          <div className="flex gap-2 font-pixel text-[10px]">
+            <button className="toy-btn rounded-full px-2.5 py-1.5" onClick={() => rotate(-1)} aria-label="Rotate bezel counter-clockwise">⟲ bezel</button>
+            <button className="toy-btn rounded-full px-2.5 py-1.5" onClick={() => go(-1)} aria-label="Previous screen">‹</button>
+            <button className="toy-btn rounded-full px-2.5 py-1.5" onClick={() => go(1)} aria-label="Next screen">›</button>
+            <button className="toy-btn rounded-full px-2.5 py-1.5" onClick={() => rotate(1)} aria-label="Rotate bezel clockwise">bezel ⟳</button>
           </div>
         </div>
       </Panel>
       <Panel title="Companion notes">
         <ul className="grid gap-1.5 text-[12px] text-dim">
-          <li><b className="text-fg">Concept, running in the browser.</b> Not a Wear OS build; the Galaxy Watch 5 shape and touch bezel are simulated.</li>
+          <li><b className="text-fg">Concept, running in the browser.</b> Not a Wear OS build; the Galaxy Watch 5 touch bezel is simulated inside a Catgotchi-style pixel shell.</li>
           <li>Navigation: rotate bezel (scroll wheel / buttons) to change the focused field, swipe or ‹ › to switch screens.</li>
           <li>Haptics use the Vibration API (works on Android Chrome). Last pattern: <code className="font-mono text-fg">{lastBuzz}</code></li>
           <li>Haptic map: tick 6ms · confirm 25ms · wrong 40-60-40 · loss limit 200-100-200.</li>

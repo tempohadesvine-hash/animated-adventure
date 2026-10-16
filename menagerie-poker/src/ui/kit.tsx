@@ -51,7 +51,7 @@ export function StatusBadge({ status }: { status: DataStatus }) {
 
 export function CardChip({ card, size = 'md', onClick, dim }: { card: Card; size?: 'sm' | 'md' | 'lg'; onClick?: () => void; dim?: boolean }) {
   const s = { sm: 'h-9 w-7 text-sm', md: 'h-14 w-10 text-lg', lg: 'h-20 w-14 text-2xl' }[size];
-  const icon = { sm: 12, md: 16, lg: 22 }[size];
+  const icon = { sm: 16, md: 16, lg: 32 }[size];
   const a = ANIMAL_SUITS[card.suit];
   const Tag = onClick ? 'button' : 'div';
   return (

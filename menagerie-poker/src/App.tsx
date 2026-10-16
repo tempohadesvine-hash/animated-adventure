@@ -52,7 +52,7 @@ export default function App() {
           <div className="hidden items-center gap-3 sm:flex" aria-label="Suit legend">
             {SUITS.map((x) => (
               <span key={x} className="flex items-center gap-1 font-mono text-[10px] text-dim" title={`${ANIMAL_SUITS[x].animal}s = ${ANIMAL_SUITS[x].suitName}`}>
-                <AnimalIcon suit={x} size={14} />{ANIMAL_SUITS[x].animal}={ANIMAL_SUITS[x].suitName[0]}
+                <AnimalIcon suit={x} size={16} />{ANIMAL_SUITS[x].animal}={ANIMAL_SUITS[x].suitName[0]}
               </span>
             ))}
           </div>
@@ -73,7 +73,7 @@ export default function App() {
 
       <main className="mx-auto max-w-6xl px-3 py-3 sm:px-4">
         <div className="mb-3 flex items-center gap-3 font-mono text-[10px] text-dim sm:hidden" aria-label="Suit legend">
-          {SUITS.map((x) => <span key={x} className="flex items-center gap-0.5"><AnimalIcon suit={x} size={12} />{ANIMAL_SUITS[x].suitName}</span>)}
+          {SUITS.map((x) => <span key={x} className="flex items-center gap-0.5"><AnimalIcon suit={x} size={16} />{ANIMAL_SUITS[x].suitName}</span>)}
         </div>
         <Boundary key={tab}>
           <div className="fade-up">
